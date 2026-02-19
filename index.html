@@ -15,9 +15,7 @@
     .status{ color:#0f172a; font-weight:700; }
     .status small{ font-weight:600; color:var(--muted); }
     .grid2{ display:grid; grid-template-columns: 1.05fr .95fr; gap:18px; align-items:start; }
-    @media (max-width: 980px){
-      .grid2{ grid-template-columns: 1fr; }
-    }
+    @media (max-width: 980px){ .grid2{ grid-template-columns: 1fr; } }
 
     .card{
       background:var(--card);
@@ -26,62 +24,34 @@
       box-shadow:var(--shadow);
       padding:16px;
     }
-    .card h2{
-      margin:0 0 10px;
-      font-size:18px;
-      letter-spacing:-.01em;
-    }
-    .cardHead{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      margin-bottom:10px;
-    }
-    .hint{
-      font-size:13px;
-      color:var(--muted);
-    }
+    .card h2{ margin:0 0 10px; font-size:18px; letter-spacing:-.01em; }
+    .cardHead{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px; }
+    .hint{ font-size:13px; color:var(--muted); }
 
     textarea{
-      width:100%;
-      min-height:160px;
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:12px 12px;
-      resize:vertical;
-      font-family:inherit;
-      font-size:14px;
-      line-height:1.45;
-      outline:none;
-      background:#fff;
+      width:100%; min-height:160px;
+      border:1px solid var(--border); border-radius:14px;
+      padding:12px 12px; resize:vertical;
+      font-family:inherit; font-size:14px; line-height:1.45;
+      outline:none; background:#fff;
     }
     textarea:focus{ border-color:#cbd5e1; box-shadow:0 0 0 3px rgba(99,102,241,.08); }
 
     .rowBtns{ display:flex; gap:10px; margin-top:12px; }
     button{
-      border:none;
-      border-radius:999px;
-      padding:10px 14px;
-      font-weight:800;
-      cursor:pointer;
-      background:#0f172a;
-      color:#fff;
+      border:none; border-radius:999px;
+      padding:10px 14px; font-weight:800;
+      cursor:pointer; background:#0f172a; color:#fff;
     }
     button.secondary{
-      background:#fff;
-      color:#0f172a;
-      border:1px solid var(--border);
-      font-weight:800;
+      background:#fff; color:#0f172a;
+      border:1px solid var(--border); font-weight:800;
     }
     button.ghost{
-      background:#fff;
-      color:#0f172a;
-      border:1px solid var(--border);
-      font-weight:800;
+      background:#fff; color:#0f172a;
+      border:1px solid var(--border); font-weight:800;
     }
 
-    /* Remaining list */
     .remainBox{
       border:1px solid var(--border);
       border-radius:14px;
@@ -98,7 +68,6 @@
     .remainRow .name{ font-weight:700; }
     .remainRow .cnt{ font-weight:900; }
 
-    /* RGB panel */
     .rgbTop{
       display:flex;
       align-items:center;
@@ -113,17 +82,12 @@
       font-weight:900;
     }
     .swatch{
-      width:18px;
-      height:18px;
+      width:18px; height:18px;
       border-radius:6px;
       border:1px solid rgba(0,0,0,.12);
       background:rgb(90,160,240);
     }
-    .rgbVal{
-      font-size:13px;
-      color:var(--muted);
-      white-space:nowrap;
-    }
+    .rgbVal{ font-size:13px; color:var(--muted); white-space:nowrap; }
 
     .rgbControls{
       margin-top:8px;
@@ -132,13 +96,8 @@
       gap:10px 12px;
       align-items:center;
     }
-    .rgbControls label{
-      font-weight:900;
-      color:#0f172a;
-    }
-    .rgbControls input[type="range"]{
-      width:100%;
-    }
+    .rgbControls label{ font-weight:900; color:#0f172a; }
+    .rgbControls input[type="range"]{ width:100%; }
     .rgbControls input[type="number"]{
       width:100%;
       padding:8px 10px;
@@ -148,24 +107,15 @@
       font-size:14px;
       background:#fff;
     }
-    .rgbActions{
-      display:flex;
-      gap:10px;
-      margin-top:12px;
-    }
+    .rgbActions{ display:flex; gap:10px; margin-top:12px; }
 
-    /* Board */
     .boardHeader{
       display:flex;
       justify-content:space-between;
       align-items:center;
       margin-bottom:10px;
     }
-    .boardMeta{
-      font-size:13px;
-      color:var(--muted);
-      font-weight:700;
-    }
+    .boardMeta{ font-size:13px; color:var(--muted); font-weight:700; }
     .boardWrap{
       border-radius:22px;
       border:1px solid var(--border);
@@ -173,8 +123,6 @@
       padding:14px;
       background:#fff;
     }
-
-    /* Decorative frame behind grid */
     .frame{
       border-radius:22px;
       padding:18px;
@@ -197,12 +145,7 @@
       pointer-events:none;
     }
 
-    .tiles{
-      position:relative;
-      display:grid;
-      gap:14px;
-      /* columns set by JS */
-    }
+    .tiles{ position:relative; display:grid; gap:14px; }
 
     .tile{
       position:relative;
@@ -223,7 +166,6 @@
       line-height:1.15;
       display:block;
       width:100%;
-      /* font-size set by JS for fit */
       word-break:keep-all;
       overflow-wrap:anywhere;
     }
@@ -232,17 +174,9 @@
       background:#fff;
       box-shadow: 0 2px 0 rgba(0,0,0,.18);
     }
-    .tile.picked .txt{
-      color:#6b4b00; /* 텍스트 색상 (인덱스 참고 스타일) */
-    }
+    .tile.picked .txt{ color:#6b4b00; }
 
-    /* history */
-    .historyHead{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-bottom:10px;
-    }
+    .historyHead{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
     .historyHint{ color:var(--muted); font-size:13px; font-weight:700; }
     .historyList{
       border:1px solid var(--border);
@@ -271,7 +205,6 @@
       font-weight:900;
     }
 
-    /* PASSWORD GATE */
     #lock-screen{
       position:fixed; inset:0;
       display:flex; flex-direction:column;
@@ -287,15 +220,8 @@
       outline:none;
       min-width:260px;
     }
-    #lock-screen button{
-      padding:10px 14px;
-    }
 
-    /* Admin top bar/panel */
-    #topbar{
-      display:flex; justify-content:space-between; align-items:center;
-      gap:12px; margin:10px 0 14px;
-    }
+    #topbar{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin:10px 0 14px; }
     #adminLogs{
       display:none; margin:0 0 14px; padding:10px 12px;
       border:1px solid rgba(0,0,0,0.12); border-radius:10px;
@@ -304,7 +230,6 @@
   </style>
 </head>
 <body>
-  <!-- PASSWORD GATE -->
   <div id="lock-screen">
     <h2>접근 제한</h2>
     <input type="password" id="password" placeholder="비밀번호 입력" />
@@ -323,7 +248,6 @@
       </div>
 
       <div class="grid2">
-        <!-- LEFT -->
         <div>
           <div class="card">
             <div class="cardHead">
@@ -341,7 +265,6 @@
             </div>
           </div>
 
-          <!-- 남은 갯수 -->
           <div class="card" style="margin-top:18px;">
             <div class="cardHead">
               <h2>남은 갯수</h2>
@@ -350,7 +273,6 @@
             <div class="remainBox" id="remainBox"></div>
           </div>
 
-          <!-- RGB 설정 -->
           <div class="card" style="margin-top:18px;">
             <div class="rgbTop">
               <button class="ghost" id="toggleRgb">설정 숨기기</button>
@@ -384,9 +306,7 @@
           </div>
         </div>
 
-        <!-- RIGHT -->
         <div>
-          <!-- Top bar (welcome + logout) -->
           <div id="topbar">
             <div style="display:flex; flex-direction:column; gap:6px;">
               <div id="who-badge" style="font-size:12px; opacity:0.7;"></div>
@@ -395,7 +315,6 @@
             <button id="logoutBtn" type="button" onclick="doLogout()" style="padding:6px 10px;">로그아웃</button>
           </div>
 
-          <!-- Admin logs -->
           <div id="adminLogs">
             <div style="font-weight:800; margin-bottom:8px;">관리자: 로그인 기록</div>
             <div id="logList" style="font-size:12px; line-height:1.5; white-space:pre-wrap;"></div>
@@ -427,25 +346,21 @@
 
 <script>
   /***********************
-   *  설정(여기만 바꾸면 됨)
+   * ✅ 내가 여기 다 해놨어
    ***********************/
-  // ✅ Apps Script 웹앱 배포 후 받은 /exec URL을 여기에 붙여넣어!
-  const LOG_ENDPOINT = "PASTE_YOUR_APPS_SCRIPT_EXEC_URL_HERE";
-
-  // ✅ 관리자 로그 조회용 토큰(Apps Script 코드의 ADMIN_TOKEN과 동일하게)
-  const ADMIN_TOKEN = "PASTE_YOUR_ADMIN_TOKEN_HERE";
+  const LOG_ENDPOINT = "https://script.google.com/macros/s/AKfycby1YblyIdb8UthZOAJWC-8tW3_6S0tzhssdmu6YEkVwysnGcZTCo-fEaQE73cFYfe_9/exec";
+  const ADMIN_TOKEN  = "sera-admin-20260220-8xK2pQ9z";
 
   const USERS = {
     "Seravelyy!": { name: "세라", role: "admin" },
     "emo0205": { name: "에메모현", role: "user" }
   };
 
-  /* ====== app state ====== */
-  let itemsMap = new Map();   // name -> count
-  let pool = [];             // expanded labels
-  let picked = [];           // history labels
+  let itemsMap = new Map();
+  let pool = [];
+  let picked = [];
   let currentColor = { r:90, g:160, b:240 };
-  let cols = 10;             // computed
+  let cols = 10;
   let totalCells = 0;
 
   function showWelcome(name){
@@ -457,7 +372,6 @@
   }
 
   function sendLoginLog(name){
-    if (!LOG_ENDPOINT || LOG_ENDPOINT.includes("PASTE_YOUR_")) return;
     fetch(LOG_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -473,12 +387,6 @@
     const list = document.getElementById("logList");
     if (!panel || !list) return;
 
-    if (!LOG_ENDPOINT || LOG_ENDPOINT.includes("PASTE_YOUR_") ||
-        !ADMIN_TOKEN || ADMIN_TOKEN.includes("PASTE_YOUR_")){
-      panel.style.display = "none";
-      return;
-    }
-
     try{
       const res = await fetch(`${LOG_ENDPOINT}?token=${encodeURIComponent(ADMIN_TOKEN)}`);
       const text = await res.text();
@@ -488,7 +396,7 @@
       panel.style.display = "block";
 
       if (!Array.isArray(data)){
-        list.textContent = "로그 조회 응답이 JSON 배열이 아니에요.\n" + text;
+        list.textContent = "로그 조회 실패(토큰/Apps Script doGet 확인)\n" + text;
         return;
       }
       if (data.length === 0){
@@ -499,7 +407,7 @@
       list.textContent = data.map(x => `- ${x.name || "unknown"} / ${x.time || ""}`).join("\n");
     } catch(e){
       panel.style.display = "block";
-      list.textContent = "로그를 불러오지 못했어요. (URL/권한/토큰 확인)\n" + String(e);
+      list.textContent = "로그를 불러오지 못했어요.\n" + String(e);
     }
   }
 
@@ -560,7 +468,6 @@
     }
   });
 
-  /* ====== parsing ====== */
   function parseItems(text){
     const map = new Map();
     const lines = text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
@@ -583,10 +490,8 @@
     totalCells = pool.length;
   }
 
-  /* ====== layout ====== */
   function computeCols(total){
     if (total<=0) return 0;
-    // 기본 10열 기준, 너무 작으면 4열
     if (total <= 20) return Math.min(10, Math.max(4, Math.ceil(Math.sqrt(total))));
     return 10;
   }
@@ -599,20 +504,14 @@
   }
 
   function tileFontSizeForText(text, tileW){
-    // 기본 비율: 숫자는 크게, 한글은 길면 줄바꿈 + 축소
-    // 타일 너비 대비 대략적인 기준 폰트 크기 (인덱스 스타일 비슷하게)
-    const base = Math.max(12, Math.floor(tileW * 0.24)); // 24%
-    const min = Math.max(10, Math.floor(tileW * 0.14));  // 14%
-    if (!text) return base;
-
-    // 글자 길이에 따라 축소
-    const len = String(text).length;
+    const base = Math.max(12, Math.floor(tileW * 0.24));
+    const min = Math.max(10, Math.floor(tileW * 0.14));
+    const len = String(text||"").length;
     let size = base;
     if (len >= 6) size = Math.floor(base * 0.80);
     if (len >= 10) size = Math.floor(base * 0.68);
     if (len >= 14) size = Math.floor(base * 0.58);
-    size = Math.max(min, size);
-    return size;
+    return Math.max(min, size);
   }
 
   function renderTiles(){
@@ -622,11 +521,9 @@
     cols = computeCols(totalCells);
     tilesEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
 
-    // 계산용: 타일 크기 추정
-    // 프레임 내부는 padding + gap이 있으니 대략적인 폭으로 계산
     const frame = document.getElementById("frame");
     const frameRect = frame.getBoundingClientRect();
-    const padding = 18*2; // frame padding
+    const padding = 18*2;
     const gap = 14;
     const innerW = Math.max(200, frameRect.width - padding);
     const tileW = Math.floor((innerW - gap*(cols-1)) / cols);
@@ -638,20 +535,14 @@
 
       const span = document.createElement("span");
       span.className = "txt";
-
-      // 기본: 숫자 표시
       span.textContent = String(i+1);
-
-      const fs = tileFontSizeForText(span.textContent, tileW);
-      span.style.fontSize = fs + "px";
+      span.style.fontSize = tileFontSizeForText(span.textContent, tileW) + "px";
 
       div.appendChild(span);
-
       div.addEventListener("click", ()=>pickOne(i));
       tilesEl.appendChild(div);
     }
 
-    // meta
     document.getElementById("metaCells").textContent = String(totalCells);
     document.getElementById("metaCols").textContent = String(cols);
 
@@ -665,25 +556,16 @@
     const span = tile.querySelector(".txt");
     span.textContent = label;
 
-    // 타일 크기에 맞춰 폰트 다시 계산 + 줄바꿈 적용
-    // 타일 실측
     const rect = tile.getBoundingClientRect();
-    const fs = tileFontSizeForText(label, rect.width);
-    span.style.fontSize = fs + "px";
-
-    // 줄바꿈 유도(필요 시)
+    span.style.fontSize = tileFontSizeForText(label, rect.width) + "px";
     span.style.whiteSpace = "pre-wrap";
   }
 
-  /* ====== draw logic ====== */
   function pickOne(idx){
-    // 이미 뽑힌 칸이면 무시
     const tile = document.querySelector(`.tile[data-idx="${idx}"]`);
     if (tile && tile.classList.contains("picked")) return;
-
     if (pool.length === 0) return;
 
-    // 해당 칸에 랜덤 라벨 배정
     const r = Math.floor(Math.random() * pool.length);
     const label = pool.splice(r,1)[0];
 
@@ -715,7 +597,6 @@
       return;
     }
 
-    // 원래 입력 순서 유지
     itemsMap.forEach((_, name)=>{
       const cnt = remainMap.get(name) || 0;
       const row = document.createElement("div");
@@ -748,7 +629,6 @@
       .replace(/'/g,"&#039;");
   }
 
-  /* ====== UI handlers ====== */
   const itemsEl = document.getElementById("items");
   const btnBuild = document.getElementById("btnBuild");
   const btnReset = document.getElementById("btnReset");
@@ -780,7 +660,6 @@
     updateStats();
   });
 
-  // RGB bind
   const rRange = document.getElementById("rRange");
   const gRange = document.getElementById("gRange");
   const bRange = document.getElementById("bRange");
@@ -820,7 +699,6 @@
     syncRGB();
   });
 
-  // RGB panel toggle
   const toggleBtn = document.getElementById("toggleRgb");
   const rgbPanel = document.getElementById("rgbPanel");
   let rgbHidden = false;
@@ -835,16 +713,13 @@
     }
   });
 
-  // init remain box + history
   updateRemain();
   renderHistory();
   applyFrameColor();
 
-  // resize re-render fonts on window resize
   window.addEventListener("resize", ()=>{
     if (totalCells>0) renderTiles();
   });
 </script>
 </body>
 </html>
-
