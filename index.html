@@ -1,198 +1,549 @@
 <!doctype html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Special Gacha Board</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>스페셜 뽑기판 (단일 HTML)</title>
+  <style>
+    :root{ --bg:#fff; --card:#fff; --muted:#64748b; --border:#e2e8f0; --shadow: 0 1px 2px rgba(15,23,42,.08); }
+    *{ box-sizing:border-box; }
+    body{ margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", sans-serif; background:var(--bg); color:#0f172a; }
+    .wrap{ max-width:1100px; margin:0 auto; padding:16px; }
+    h1{ margin:0; font-size:28px; letter-spacing:-.02em; }
+    .sub{ margin-top:6px; color:var(--muted); font-size:13px; }
+    .toprow{ display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:12px; }
+    .progress{ color:#334155; font-size:13px; }
+    .grid{ display:grid; grid-template-columns: 380px minmax(0,1fr); gap:16px; margin-top:16px; align-items:start; }
+    @media(max-width: 900px){ body{ overflow-x:auto; } .wrap{ min-width:900px; } }
+    .panel{ border:1px solid var(--border); border-radius:18px; padding:14px; box-shadow:var(--shadow); background:var(--card); }
+    .panel h2{ margin:0; font-size:15px; }
+    textarea{ width:100%; height:160px; resize:none; border:1px solid var(--border); border-radius:14px; padding:12px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size:13px; outline:none; }
+    textarea:focus{ box-shadow:0 0 0 3px rgba(148,163,184,.4); }
+    .btns{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    button{ border:1px solid var(--border); background:#fff; padding:10px 12px; border-radius:14px; font-weight:700; cursor:pointer; box-shadow:var(--shadow); }
+    button.primary{ background:#0f172a; border-color:#0f172a; color:#fff; }
+    button.good{ background:#16a34a; border-color:#16a34a; color:#fff; }
+    button:disabled{ opacity:.45; cursor:not-allowed; }
+    .err{ margin-top:10px; border:1px solid #fecaca; background:#fff1f2; color:#be123c; border-radius:14px; padding:10px 12px; font-size:13px; }
+    .row{ display:flex; align-items:center; gap:10px; margin-top:10px; }
+    input[type=number]{ width:110px; border:1px solid var(--border); border-radius:14px; padding:10px 12px; font-size:13px; outline:none; }
+    input[type=number]:focus{ box-shadow:0 0 0 3px rgba(148,163,184,.4); }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
 
-<style>
-body{
-  margin:0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif;
-  background:#ffffff;
-  color:#0f172a;
-}
-#lock-screen{
-  position:fixed;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex-direction:column;
-  background:#f8fbff;
-  z-index:9999;
-}
-#lock-screen input{
-  padding:12px 14px;
-  font-size:16px;
-  border-radius:10px;
-  border:1px solid #cbd5e1;
-  outline:none;
-}
-#lock-screen button{
-  margin-top:10px;
-  padding:10px 18px;
-  border-radius:999px;
-  border:none;
-  background:#0f172a;
-  color:#fff;
-  font-weight:800;
-  cursor:pointer;
-}
-#error{
-  margin-top:8px;
-  color:#dc2626;
-  display:none;
-}
+    /* === HARD FIX: keep left settings + right board side-by-side ALWAYS === */
+    .grid{ display:flex !important; flex-wrap:nowrap !important; align-items:flex-start !important; gap:16px !important; }
+    .grid > .col{ min-width:0 !important; }
+    .grid > .col:first-child{ flex:0 0 420px !important; width:420px !important; }
+    .grid > .col:last-child{ flex:1 1 auto !important; }
+    body{ overflow-x:auto; }
+    .wrap{ min-width: 980px; }
 
-#welcome{
-  position:fixed;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:26px;
-  font-weight:900;
-  background:rgba(255,255,255,0.85);
-  z-index:5000;
-  display:none;
-}
+    /* === Color panel: when collapsed, show ONLY the toggle button === */
+    .panel#colorPanel.collapsed{ padding:10px 12px !important; }
+    .panel#colorPanel.collapsed .colorhead{ justify-content:flex-end !important; }
+    .panel#colorPanel.collapsed .colorhead > :not(#toggleColorPanel){ display:none !important; }
+    .panel#colorPanel.collapsed #colorBody{ display:none !important; }
 
-#site{
-  display:none;
-  padding:24px;
-  max-width:1200px;
-  margin:0 auto;
-}
-
-/* 로그아웃 버튼 */
-#logout{
-  position:fixed;
-  top:14px;
-  right:18px;
-  background:#fff;
-  border:1px solid #e2e8f0;
-  border-radius:999px;
-  padding:6px 12px;
-  font-weight:800;
-  cursor:pointer;
-}
-
-/* === 뽑기판 스타일 (기존 유지) === */
-.board{
-  margin-top:30px;
-  padding:20px;
-  border-radius:24px;
-  background:rgb(255,240,180);
-}
-.tiles{
-  display:grid;
-  grid-template-columns:repeat(10,1fr);
-  gap:16px;
-}
-.tile{
-  background:rgba(255,255,255,0.7);
-  border-radius:18px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  aspect-ratio:1/1;
-  font-weight:900;
-  font-size:20px;
-}
-.tile.picked{
-  background:#fff;
-}
-</style>
+    /* === Welcome toast (center) === */
+    #welcome{
+      position:fixed;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-50%);
+      background:rgba(15,23,42,.92);
+      color:#fff;
+      padding:12px 16px;
+      border-radius:14px;
+      box-shadow:0 10px 30px rgba(0,0,0,.18);
+      z-index:10001;
+      display:none;
+      font-weight:900;
+      letter-spacing:-.02em;
+    }
+  </style>
 </head>
-
 <body>
 
-<!-- 🔒 비밀번호 화면 -->
-<div id="lock-screen">
-  <h2>비밀번호 입력</h2>
-  <input id="pw" type="password" placeholder="비밀번호">
-  <button onclick="login()">입장</button>
-  <div id="error">비밀번호가 틀렸어요</div>
-</div>
-
-<!-- 환영 문구 -->
-<div id="welcome"></div>
-
-<!-- 로그아웃 -->
-<button id="logout" onclick="logout()">로그아웃</button>
-
-<!-- 실제 사이트 -->
-<div id="site">
-  <h1>스페셜 뽑기판</h1>
-
-  <div class="board">
-    <div class="tiles" id="tiles"></div>
+  <!-- PASSWORD GATE -->
+  <div id="lock-screen" style="
+    position:fixed; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:12px;
+    background:#eef6ff; z-index:9999;
+  ">
+    <h2>로그인</h2>
+    <input type="password" id="password" placeholder="비밀번호 입력"
+      style="padding:10px 12px; font-size:16px;"/>
+    <button onclick="checkPassword()" style="padding:8px 14px;">입장</button>
+    <p id="error" style="color:red; display:none;">비밀번호가 틀렸어요</p>
   </div>
-</div>
+
+  <div id="site-content" style="display:none;">
+
+    <div id="topbar" style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin:10px 0 14px;">
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <div id="who-badge" style="font-size:12px; opacity:0.7;"></div>
+      </div>
+      <button id="logoutBtn" type="button" onclick="doLogout()" style="padding:6px 10px;">로그아웃</button>
+    </div>
+
+    <!-- 중앙 환영 토스트 -->
+    <div id="welcome"></div>
+  </div>
+
+  <div class="wrap">
+    <div class="toprow">
+      <div>
+        <h1>스페셜 뽑기판</h1>
+        <div class="sub">한 줄에 <span class="mono" style="background:#f1f5f9;padding:2px 6px;border-radius:8px;">상품명 갯수</span> (예: <span class="mono" style="background:#f1f5f9;padding:2px 6px;border-radius:8px;">하트 5</span>) → Enter로 다음 품목</div>
+      </div>
+      <div class="progress"><b>진행:</b> <span id="prog">0/0</span> (남음 <span id="left">0</span>)</div>
+    </div>
+
+    <div class="grid" style="display:flex;gap:16px;align-items:flex-start;flex-wrap:nowrap;">
+      <div class="col">
+        <div class="panel">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <h2>품목 입력</h2>
+            <div style="font-size:12px;color:#64748b;">입력 합계: <b id="planned">0</b> · 칸 수: <b id="plannedSize">0</b></div>
+          </div>
+          <textarea id="items" placeholder=""></textarea>
+          <div id="err" class="err" style="display:none;"></div>
+          <div class="btns">
+            <button id="build" class="primary">뽑기판 생성/갱신</button>
+            <button id="reset">초기화</button>
+          </div>
+        </div>
+
+        <div class="panel" id="colorPanel" style="margin-top:14px;">
+          <div class="colorhead" style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <button id="toggleColorPanel" type="button" style="margin-left:auto;">설정 숨기기</button>
+            <h2>뽑기판 색상 (RGB)</h2>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div id="swatch" style="width:18px;height:18px;border-radius:6px;border:1px solid var(--border);"></div>
+              <span id="rgbText" class="mono" style="font-size:12px;color:#64748b;"></span>
+            </div>
+          </div>
+
+          <div id="colorBody">
+            <div class="row">
+              <div style="width:18px;font-weight:800;">R</div>
+              <input id="r" type="range" min="0" max="255" value="90" style="flex:1;">
+              <input id="rN" type="number" min="0" max="255" value="90">
+            </div>
+            <div class="row">
+              <div style="width:18px;font-weight:800;">G</div>
+              <input id="g" type="range" min="0" max="255" value="160" style="flex:1;">
+              <input id="gN" type="number" min="0" max="255" value="160">
+            </div>
+            <div class="row">
+              <div style="width:18px;font-weight:800;">B</div>
+              <input id="b" type="range" min="0" max="255" value="240" style="flex:1;">
+              <input id="bN" type="number" min="0" max="255" value="240">
+            </div>
+            <div class="btns">
+              <button id="randColor">랜덤 색상</button>
+              <button id="whiteColor">흰색으로</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <h2>남은 갯수</h2>
+            <div style="font-size:12px;color:#64748b;">남은 칸: <b id="remainingSlots">0</b></div>
+          </div>
+          <div id="remainList" style="margin-top:10px;"></div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="panel">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <h2>뽑기판</h2>
+            <div style="font-size:12px;color:#64748b;">칸 수: <b id="boardCount">0</b> · 열: <b id="boardCols">0</b></div>
+          </div>
+
+          <div id="boardWrap" style="margin-top:12px; border-radius:22px; padding:14px; background: rgba(90,160,240,.35); border:1px solid rgba(90,160,240,.45);">
+            <div id="tiles" style="display:grid; gap:12px;"></div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <h2>뽑은 기록</h2>
+            <div style="font-size:12px;color:#64748b;">최신이 아래</div>
+          </div>
+          <div id="history" style="margin-top:10px; max-height:200px; overflow:auto;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
 <script>
-/* ===== 계정 설정 ===== */
-const USERS = {
-  "Seravelyy!": "세라",
-  "emo0205": "에메모현"
-};
+  // ====== (원래 기능들) ======
+  const $ = (id)=>document.getElementById(id);
 
-/* ===== 구글 Apps Script URL ===== */
-const LOG_URL = "https://script.google.com/macros/s/AKfycbxsNlX2i3ofL3yShOAOkIhyXmtO3Q9TSWj-5QTSZvsT-R0xwKfMviKyYey_B_CjubFY/exec";
+  const clampInt = (v,min,max)=>Math.max(min, Math.min(max, parseInt(v||0,10)));
+  const escapeHtml = (s)=>String(s).replace(/[&<>"']/g, (m)=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
 
-/* ===== 로그인 ===== */
-function login(){
-  const pw = document.getElementById("pw").value.trim();
-  const name = USERS[pw];
-  if(!name){
-    document.getElementById("error").style.display="block";
-    return;
+  function parseItems(text){
+    const lines = (text||'').split('\n').map(s=>s.trim()).filter(Boolean);
+    const items = [];
+    const errors = [];
+    lines.forEach((line,i)=>{
+      const m = line.match(/^(.+?)\s+(\d+)$/);
+      if(!m){ errors.push(`${i+1}번째 줄 형식이 틀렸어요: "이름 숫자"`); return; }
+      const name = m[1].trim();
+      const count = parseInt(m[2],10);
+      if(!name) errors.push(`${i+1}번째 줄 이름이 비어있어요`);
+      if(!(count>0)) errors.push(`${i+1}번째 줄 숫자가 1 이상이어야 해요`);
+      if(name && count>0) items.push({name, count});
+    });
+    return {items, errors};
   }
 
-  sessionStorage.setItem("user", name);
-  document.getElementById("lock-screen").style.display="none";
-  document.getElementById("site").style.display="block";
+  function showErrors(errs){
+    const el = $('err');
+    if(!errs.length){ el.style.display='none'; el.textContent=''; return; }
+    el.style.display='block';
+    el.textContent = errs.join('\n');
+  }
 
-  // 환영 문구
-  const w = document.getElementById("welcome");
-  w.textContent = `${name}님 환영합니다!`;
-  w.style.display="flex";
-  setTimeout(()=>w.style.display="none",2000);
+  // tiles
+  let tiles = [];
+  let history = [];
+  let rgb = {r:90,g:160,b:240};
 
-  // ✅ 시트로만 로그 전송 (화면 출력 ❌)
-  fetch(LOG_URL,{
-    method:"POST",
-    mode:"no-cors",
-    headers:{ "Content-Type":"text/plain;charset=utf-8" },
-    body: JSON.stringify({
-      name,
-      ua: navigator.userAgent,
-      time: new Date().toISOString()
-    })
-  });
-}
+  function buildTilesWithSize(items, size){
+    const bag = [];
+    items.forEach(it=>{
+      for(let i=0;i<it.count;i++) bag.push(it.name);
+    });
+    while(bag.length < size) bag.push('');
+    // shuffle
+    for(let i=bag.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [bag[i],bag[j]] = [bag[j],bag[i]];
+    }
+    return bag.slice(0,size).map((name, idx)=>({ idx, name, revealed:false }));
+  }
 
-/* ===== 로그아웃 ===== */
-function logout(){
-  sessionStorage.removeItem("user");
-  location.reload();
-}
+  function setRGB(r,g,b){
+    rgb = {r:clampInt(r,0,255), g:clampInt(g,0,255), b:clampInt(b,0,255)};
+    $('r').value = rgb.r; $('g').value = rgb.g; $('b').value = rgb.b;
+    $('rN').value = rgb.r; $('gN').value = rgb.g; $('bN').value = rgb.b;
+    renderColor();
+  }
 
-/* ===== 새로고침 유지 ===== */
-if(sessionStorage.getItem("user")){
-  document.getElementById("lock-screen").style.display="none";
-  document.getElementById("site").style.display="block";
-}
+  function renderColor(){
+    const c = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+    $('swatch').style.background = c;
+    $('rgbText').textContent = c;
+    $('boardWrap').style.background = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, .35)`;
+    $('boardWrap').style.borderColor = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, .45)`;
+  }
 
-/* ===== 예시 뽑기판 ===== */
-const tiles = document.getElementById("tiles");
-for(let i=1;i<=100;i++){
-  const d=document.createElement("div");
-  d.className="tile";
-  d.textContent=i;
-  tiles.appendChild(d);
-}
+  function computeCols(n){
+    if(n<=0) return 4;
+    const maxCols = 10;
+    const cols = Math.min(maxCols, Math.max(4, Math.round(Math.sqrt(n))));
+    return cols;
+  }
+
+  function fitTextToTile(el){
+    if(!el) return;
+    const parent = el.closest('.tile') || el.parentElement;
+    if(!parent) return;
+
+    const style = window.getComputedStyle(el);
+    const base = parseFloat(style.fontSize) || 16;
+
+    el.style.whiteSpace = "normal";
+    el.style.wordBreak = "keep-all";
+    el.style.overflowWrap = "anywhere";
+    el.style.lineHeight = "1.05";
+    el.style.textAlign = "center";
+
+    const maxW = parent.clientWidth - 16;
+    const maxH = parent.clientHeight - 16;
+
+    let low = 8, high = Math.max(8, base);
+    for(let k=0;k<10;k++){
+      const mid = (low+high)/2;
+      el.style.fontSize = mid + "px";
+      const ok = (el.scrollWidth <= maxW) && (el.scrollHeight <= maxH);
+      if(ok) low = mid;
+      else high = mid;
+    }
+    el.style.fontSize = low + "px";
+  }
+
+  function render(){
+    const count = tiles.length;
+    const cols = computeCols(count);
+    $('boardCount').textContent = count;
+    $('boardCols').textContent = cols;
+
+    const grid = $('tiles');
+    grid.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+    grid.innerHTML = '';
+
+    tiles.forEach((t, i)=>{
+      const btn = document.createElement('button');
+      btn.className = 'tile';
+      btn.type = 'button';
+      btn.style.aspectRatio = "1/1";
+      btn.style.border = "none";
+      btn.style.borderRadius = "18px";
+      btn.style.boxShadow = "0 2px 0 rgba(15,23,42,.18)";
+      btn.style.background = "rgba(255,255,255,.35)";
+      btn.style.cursor = "pointer";
+      btn.style.position = "relative";
+      btn.style.overflow = "hidden";
+
+      const inner = document.createElement('div');
+      inner.className = 'bigcenter';
+      inner.style.position = "absolute";
+      inner.style.inset = "0";
+      inner.style.display = "flex";
+      inner.style.alignItems = "center";
+      inner.style.justifyContent = "center";
+      inner.style.padding = "10px";
+      inner.style.fontWeight = "900";
+      inner.style.color = "#3a2a00";  // 텍스트 색상 유지
+
+      if(!t.revealed){
+        inner.textContent = String(i+1);
+      }else{
+        inner.textContent = t.name || '';
+        btn.style.background = "#fff";
+      }
+
+      btn.appendChild(inner);
+      grid.appendChild(btn);
+
+      btn.addEventListener('click', ()=>{
+        if(t.revealed) return;
+        tiles[i] = {...t, revealed:true};
+        if(t.name){
+          history.push(t.name);
+        }else{
+          history.push('(빈칸)');
+        }
+        render();
+      });
+
+      setTimeout(()=>fitTextToTile(inner),0);
+    });
+
+    $('prog').textContent = `${history.length}/${tiles.length}`;
+    $('left').textContent = Math.max(0, tiles.length - history.length);
+
+    renderRemain();
+    renderHistory();
+  }
+
+  function renderRemain(){
+    const remainMap = new Map();
+    tiles.forEach((t, i)=>{
+      if(!t.revealed && t.name){
+        remainMap.set(t.name, (remainMap.get(t.name)||0) + 1);
+      }
+    });
+    const remainList = $('remainList');
+    remainList.innerHTML = '';
+    const entries = [...remainMap.entries()].sort((a,b)=>b[1]-a[1]);
+
+    $('remainingSlots').textContent = tiles.filter(t=>!t.revealed).length;
+
+    if(!entries.length){
+      remainList.innerHTML = `<div style="font-size:13px;color:#64748b;">남은 품목 없음</div>`;
+      return;
+    }
+
+    entries.forEach(([name, cnt])=>{
+      const row = document.createElement('div');
+      row.style.display='flex';
+      row.style.alignItems='center';
+      row.style.justifyContent='space-between';
+      row.style.padding='10px 12px';
+      row.style.border='1px solid var(--border)';
+      row.style.borderRadius='14px';
+      row.style.marginTop='8px';
+      row.style.background='#f8fafc';
+      row.innerHTML = `<div>${escapeHtml(name)}</div><div style="font-weight:900;">${cnt}</div>`;
+      remainList.appendChild(row);
+    });
+  }
+
+  function renderHistory(){
+    const hEl = $('history');
+    hEl.innerHTML = '';
+    if(history.length === 0) return;
+    history.forEach((name, i)=>{
+      const box = document.createElement('div');
+      box.style.border='1px solid var(--border)';
+      box.style.borderRadius='14px';
+      box.style.padding='10px 12px';
+      box.style.marginTop='8px';
+      box.style.background='#fff';
+      box.innerHTML = `<div style="font-size:12px;color:#64748b;">#${i+1}</div><div style="margin-top:6px;font-weight:900;">${escapeHtml(name)}</div>`;
+      hEl.appendChild(box);
+    });
+    hEl.scrollTop = hEl.scrollHeight;
+  }
+
+  function createBoard(){
+    const parsed = parseItems($('items').value);
+    const sum = parsed.items.reduce((a,c)=>a+c.count,0);
+    $('planned').textContent = sum;
+
+    const size = clampInt(sum, 0, 5000);
+    $('plannedSize').textContent = size;
+
+    showErrors(parsed.errors);
+    if (parsed.errors.length) return;
+
+    if (size === 0){
+      tiles = [];
+      history = [];
+      renderColor();
+      render();
+      return;
+    }
+
+    tiles = buildTilesWithSize(parsed.items, size);
+    history = [];
+    renderColor();
+    render();
+  }
+
+  function resetReveals(){
+    tiles = tiles.map(t=>({ ...t, revealed:false }));
+    history = [];
+    render();
+  }
+
+  function wire(){
+    $('build').addEventListener('click', createBoard);
+    $('reset').addEventListener('click', resetReveals);
+
+    const sync = (idRange, idNum) => {
+      const range = $(idRange); const num = $(idNum);
+      const on = () => { num.value = clampInt(range.value,0,255); renderColor(); };
+      range.addEventListener('input', on);
+      num.addEventListener('input', () => { range.value = clampInt(num.value,0,255); renderColor(); });
+    };
+    sync('r','rN'); sync('g','gN'); sync('b','bN');
+
+    $('randColor').addEventListener('click', ()=>{
+      setRGB(Math.floor(Math.random()*256), Math.floor(Math.random()*256), Math.floor(Math.random()*256));
+    });
+    $('whiteColor').addEventListener('click', ()=> setRGB(255,255,255));
+
+    // init
+    setRGB(90,160,240);
+    createBoard();
+
+    // --- RGB settings panel hide/show ---
+    const colorPanelBtn = document.getElementById('toggleColorPanel');
+    const colorPanel = document.getElementById('colorPanel');
+    if (colorPanelBtn && colorPanel){
+      colorPanelBtn.addEventListener('click', () => {
+        const collapsed = colorPanel.classList.toggle('collapsed');
+        colorPanelBtn.textContent = collapsed ? '색상 설정 열기' : '설정 숨기기';
+      });
+    }
+  }
+
+  wire();
 </script>
+
+<script>
+  const USERS = {
+    "Seravelyy!": { name: "세라", role: "admin" },
+    "emo0205": { name: "에메모현", role: "user" }
+  };
+
+  // === Login log endpoint (Google Apps Script Web App) ===
+  const LOG_ENDPOINT = "https://script.google.com/macros/s/AKfycby1YblyIdb8UthZOAJWC-8tW3_6S0tzhssdmu6YEkVwysnGcZTCo-fEaQE73cFYfe_9/exec";
+
+  async function sendLoginLog(name){
+    try{
+      await fetch(LOG_ENDPOINT, {
+        method: "POST",
+        mode: "cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          time: new Date().toISOString(),
+          ua: navigator.userAgent
+        })
+      });
+    }catch(e){
+      console.warn("log failed:", e);
+    }
+  }
+
+  function showWelcome(name) {
+    const welcome = document.getElementById("welcome");
+    if (!welcome) return;
+    welcome.textContent = `${name}님 환영합니다!`;
+    welcome.style.display = "block";
+    setTimeout(() => {
+      welcome.style.display = "none";
+    }, 2500);
+  }
+
+  function unlockAs(user) {
+    document.getElementById("lock-screen").style.display = "none";
+    document.getElementById("site-content").style.display = "block";
+    sessionStorage.setItem("unlocked", "true");
+    sessionStorage.setItem("who", user.name);
+    sessionStorage.setItem("role", user.role || "user");
+
+    const badge = document.getElementById("who-badge");
+    if (badge) badge.textContent = `${user.name} 님 접속`;
+
+    showWelcome(user.name);
+
+    // send login log (no UI)
+    sendLoginLog(user.name);
+  }
+
+  function checkPassword() {
+    const input = document.getElementById("password").value.trim();
+    const user = USERS[input];
+
+    if (user) {
+      document.getElementById("error").style.display = "none";
+      unlockAs(user);
+    } else {
+      document.getElementById("error").style.display = "block";
+    }
+  }
+
+  function doLogout() {
+    sessionStorage.removeItem("unlocked");
+    sessionStorage.removeItem("who");
+    sessionStorage.removeItem("role");
+    document.getElementById("site-content").style.display = "none";
+    document.getElementById("lock-screen").style.display = "flex";
+    document.getElementById("password").value = "";
+    document.getElementById("error").style.display = "none";
+  }
+
+  // 새로고침 유지 (재로그인은 안 시킴 / 로그도 안 쌓음)
+  if (sessionStorage.getItem("unlocked") === "true") {
+    const who = sessionStorage.getItem("who");
+    const role = sessionStorage.getItem("role") || "user";
+    document.getElementById("lock-screen").style.display = "none";
+    document.getElementById("site-content").style.display = "block";
+    const badge = document.getElementById("who-badge");
+    if (badge && who) badge.textContent = `${who} 님 접속`;
+    sessionStorage.setItem("role", role);
+  }
+</script>
+
 </body>
 </html>
