@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>스페셜 뽑기판 (단일 HTML)</title>
+  <title>스페셜 뽑기판</title>
   <style>
     :root{ --bg:#fff; --card:#fff; --muted:#64748b; --border:#e2e8f0; --shadow: 0 1px 2px rgba(15,23,42,.08); }
     *{ box-sizing:border-box; }
@@ -11,9 +11,15 @@
     .wrap{ max-width:1100px; margin:24px auto 60px; padding:0 16px; }
     h1{ margin:0 0 6px; font-size:34px; letter-spacing:-.02em; }
     .sub{ color:var(--muted); margin-bottom:18px; }
-    .toprow{ display:flex; justify-content:space-between; align-items:flex-end; gap:12px; border-bottom:1px solid var(--border); padding-bottom:12px; margin-bottom:18px; }
+
+    .toprow{
+      display:flex; justify-content:space-between; align-items:flex-end; gap:12px;
+      border-bottom:1px solid var(--border); padding-bottom:12px; margin-bottom:18px;
+    }
+    .statusWrap{ display:flex; align-items:center; gap:10px; }
     .status{ color:#0f172a; font-weight:700; }
     .status small{ font-weight:600; color:var(--muted); }
+
     .grid2{ display:grid; grid-template-columns: 1.05fr .95fr; gap:18px; align-items:start; }
     @media (max-width: 980px){ .grid2{ grid-template-columns: 1fr; } }
 
@@ -37,7 +43,7 @@
     }
     textarea:focus{ border-color:#cbd5e1; box-shadow:0 0 0 3px rgba(99,102,241,.08); }
 
-    .rowBtns{ display:flex; gap:10px; margin-top:12px; }
+    .rowBtns{ display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; }
     button{
       border:none; border-radius:999px;
       padding:10px 14px; font-weight:800;
@@ -50,6 +56,10 @@
     button.ghost{
       background:#fff; color:#0f172a;
       border:1px solid var(--border); font-weight:800;
+    }
+    button.small{
+      padding:8px 12px;
+      font-size:13px;
     }
 
     .remainBox{
@@ -107,7 +117,7 @@
       font-size:14px;
       background:#fff;
     }
-    .rgbActions{ display:flex; gap:10px; margin-top:12px; }
+    .rgbActions{ display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; }
 
     .boardHeader{
       display:flex;
@@ -144,7 +154,6 @@
       border:1px solid rgba(255,255,255,.35);
       pointer-events:none;
     }
-
     .tiles{ position:relative; display:grid; gap:14px; }
 
     .tile{
@@ -169,7 +178,6 @@
       word-break:keep-all;
       overflow-wrap:anywhere;
     }
-
     .tile.picked{
       background:#fff;
       box-shadow: 0 2px 0 rgba(0,0,0,.18);
@@ -205,6 +213,7 @@
       font-weight:900;
     }
 
+    /* PASSWORD GATE */
     #lock-screen{
       position:fixed; inset:0;
       display:flex; flex-direction:column;
@@ -221,15 +230,28 @@
       min-width:260px;
     }
 
-    #topbar{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin:10px 0 14px; }
-    #adminLogs{
-      display:none; margin:0 0 14px; padding:10px 12px;
-      border:1px solid rgba(0,0,0,0.12); border-radius:10px;
-      background:rgba(255,255,255,0.7);
+    /* Welcome overlay (center) */
+    #welcomeOverlay{
+      position:fixed;
+      left:50%; top:50%;
+      transform:translate(-50%,-50%);
+      padding:14px 18px;
+      border-radius:16px;
+      background:rgba(15,23,42,0.92);
+      color:#fff;
+      font-weight:900;
+      letter-spacing:-.01em;
+      z-index:10000;
+      display:none;
+      box-shadow: 0 10px 30px rgba(0,0,0,.18);
+      text-align:center;
+      min-width:240px;
     }
   </style>
 </head>
 <body>
+  <div id="welcomeOverlay"></div>
+
   <div id="lock-screen">
     <h2>접근 제한</h2>
     <input type="password" id="password" placeholder="비밀번호 입력" />
@@ -244,10 +266,14 @@
           <h1>스페셜 뽑기판</h1>
           <div class="sub">한 줄에 <b>상품명 갯수</b> (예: 하트 5) → Enter로 다음 품목</div>
         </div>
-        <div class="status">진행: <span id="progress">0</span>/<span id="total">0</span> <small>(남음 <span id="remainTotal">0</span>)</small></div>
+        <div class="statusWrap">
+          <div class="status">진행: <span id="progress">0</span>/<span id="total">0</span> <small>(남음 <span id="remainTotal">0</span>)</small></div>
+          <button class="secondary small" type="button" onclick="doLogout()">로그아웃</button>
+        </div>
       </div>
 
       <div class="grid2">
+        <!-- LEFT -->
         <div>
           <div class="card">
             <div class="cardHead">
@@ -265,6 +291,7 @@
             </div>
           </div>
 
+          <!-- 남은 갯수 -->
           <div class="card" style="margin-top:18px;">
             <div class="cardHead">
               <h2>남은 갯수</h2>
@@ -273,6 +300,7 @@
             <div class="remainBox" id="remainBox"></div>
           </div>
 
+          <!-- RGB 설정 -->
           <div class="card" style="margin-top:18px;">
             <div class="rgbTop">
               <button class="ghost" id="toggleRgb">설정 숨기기</button>
@@ -306,20 +334,8 @@
           </div>
         </div>
 
+        <!-- RIGHT -->
         <div>
-          <div id="topbar">
-            <div style="display:flex; flex-direction:column; gap:6px;">
-              <div id="who-badge" style="font-size:12px; opacity:0.7;"></div>
-              <div id="welcome" style="font-size:14px; font-weight:800; display:none;"></div>
-            </div>
-            <button id="logoutBtn" type="button" onclick="doLogout()" style="padding:6px 10px;">로그아웃</button>
-          </div>
-
-          <div id="adminLogs">
-            <div style="font-weight:800; margin-bottom:8px;">관리자: 로그인 기록</div>
-            <div id="logList" style="font-size:12px; line-height:1.5; white-space:pre-wrap;"></div>
-          </div>
-
           <div class="card">
             <div class="boardHeader">
               <h2>뽑기판</h2>
@@ -346,69 +362,30 @@
 
 <script>
   /***********************
-   * ✅ 내가 여기 다 해놨어
+   *  로그인 + 시트 로그(화면표시 X)
    ***********************/
   const LOG_ENDPOINT = "https://script.google.com/macros/s/AKfycbz803Onr4fOJdW0MLNjhEY75dRXksK5UuHwjXi8upf0ff9xSK0mLZnyAYp5SAwjJBKQ/exec";
-  const ADMIN_TOKEN  = "sera-admin-20260220-8xK2pQ9z";
 
   const USERS = {
-    "Seravelyy!": { name: "세라", role: "admin" },
-    "emo0205": { name: "에메모현", role: "user" }
+    "Seravelyy!": { name: "세라" },
+    "emo0205":    { name: "에메모현" }
   };
 
-  let itemsMap = new Map();
-  let pool = [];
-  let picked = [];
-  let currentColor = { r:90, g:160, b:240 };
-  let cols = 10;
-  let totalCells = 0;
-
-  function showWelcome(name){
-    const welcome = document.getElementById("welcome");
-    if (!welcome) return;
-    welcome.textContent = `${name}님 환영합니다!`;
-    welcome.style.display = "block";
-    setTimeout(()=>{ welcome.style.display = "none"; }, 2500);
+  function showWelcomeOverlay(name){
+    const el = document.getElementById("welcomeOverlay");
+    el.textContent = `${name}님 환영합니다!`;
+    el.style.display = "block";
+    setTimeout(()=>{ el.style.display = "none"; }, 900);
   }
 
+  // ✅ CORS/프리플라이트 피해서 "무조건" 시트에 기록되게
   function sendLoginLog(name){
     fetch(LOG_ENDPOINT, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify({ name, ua: navigator.userAgent })
     }).catch(()=>{});
-  }
-
-  async function loadLogsForAdmin(){
-    const role = sessionStorage.getItem("role");
-    if (role !== "admin") return;
-
-    const panel = document.getElementById("adminLogs");
-    const list = document.getElementById("logList");
-    if (!panel || !list) return;
-
-    try{
-      const res = await fetch(`${LOG_ENDPOINT}?token=${encodeURIComponent(ADMIN_TOKEN)}`);
-      const text = await res.text();
-      let data;
-      try { data = JSON.parse(text); } catch(e){ data = null; }
-
-      panel.style.display = "block";
-
-      if (!Array.isArray(data)){
-        list.textContent = "로그 조회 실패(토큰/Apps Script doGet 확인)\n" + text;
-        return;
-      }
-      if (data.length === 0){
-        list.textContent = "기록 없음";
-        return;
-      }
-
-      list.textContent = data.map(x => `- ${x.name || "unknown"} / ${x.time || ""}`).join("\n");
-    } catch(e){
-      panel.style.display = "block";
-      list.textContent = "로그를 불러오지 못했어요.\n" + String(e);
-    }
   }
 
   function unlockAs(user){
@@ -416,20 +393,17 @@
     document.getElementById("site-content").style.display = "block";
     sessionStorage.setItem("unlocked", "true");
     sessionStorage.setItem("who", user.name);
-    sessionStorage.setItem("role", user.role || "user");
 
-    const badge = document.getElementById("who-badge");
-    if (badge) badge.textContent = `${user.name} 님 접속`;
+    // 중앙 환영문구 → 뽑기판은 이미 보이게
+    showWelcomeOverlay(user.name);
 
-    showWelcome(user.name);
+    // 시트 기록(화면에 아무것도 안 뜸)
     sendLoginLog(user.name);
-    loadLogsForAdmin();
   }
 
-  function checkPassword() {
+  function checkPassword(){
     const input = document.getElementById("password").value.trim();
     const user = USERS[input];
-
     if (user) {
       unlockAs(user);
     } else {
@@ -440,7 +414,6 @@
   function doLogout(){
     sessionStorage.removeItem("unlocked");
     sessionStorage.removeItem("who");
-    sessionStorage.removeItem("role");
     document.getElementById("site-content").style.display = "none";
     const lock = document.getElementById("lock-screen");
     lock.style.display = "flex";
@@ -449,14 +422,8 @@
   }
 
   if (sessionStorage.getItem("unlocked") === "true") {
-    const who = sessionStorage.getItem("who");
-    const role = sessionStorage.getItem("role") || "user";
     document.getElementById("lock-screen").style.display = "none";
     document.getElementById("site-content").style.display = "block";
-    const badge = document.getElementById("who-badge");
-    if (badge && who) badge.textContent = `${who} 님 접속`;
-    sessionStorage.setItem("role", role);
-    loadLogsForAdmin();
   }
 
   window.addEventListener("load", ()=>{
@@ -467,6 +434,16 @@
       });
     }
   });
+
+  /***********************
+   *  뽑기판 로직(기존)
+   ***********************/
+  let itemsMap = new Map();
+  let pool = [];
+  let picked = [];
+  let currentColor = { r:90, g:160, b:240 };
+  let cols = 10;
+  let totalCells = 0;
 
   function parseItems(text){
     const map = new Map();
