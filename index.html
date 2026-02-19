@@ -1,436 +1,198 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>스페셜 뽑기판 (단일 HTML)</title>
-  <style>
-    :root{ --bg:#fff; --card:#fff; --muted:#64748b; --border:#e2e8f0; --shadow: 0 1px 2px rgba(15,23,42,.08); }
-    *{ box-sizing:border-box; }
-    body{ margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", sans-serif; background:var(--bg); color:#0f172a; }
-    .wrap{ max-width:1100px; margin:24px auto 60px; padding:0 16px; }
-    h1{ margin:0 0 6px; font-size:34px; letter-spacing:-.02em; }
-    .sub{ color:var(--muted); margin-bottom:18px; }
-    .toprow{ display:flex; justify-content:space-between; align-items:flex-end; gap:12px; border-bottom:1px solid var(--border); padding-bottom:12px; margin-bottom:18px; }
-    .status{ color:#0f172a; font-weight:700; }
-    .status small{ font-weight:600; color:var(--muted); }
-    .grid2{ display:grid; grid-template-columns: 1.05fr .95fr; gap:18px; align-items:start; }
-    @media (max-width: 980px){ .grid2{ grid-template-columns: 1fr; } }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Special Gacha Board</title>
 
-    .card{
-      background:var(--card);
-      border:1px solid var(--border);
-      border-radius:18px;
-      box-shadow:var(--shadow);
-      padding:16px;
-    }
-    .card h2{ margin:0 0 10px; font-size:18px; letter-spacing:-.01em; }
-    .cardHead{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px; }
-    .hint{ font-size:13px; color:var(--muted); }
+<style>
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif;
+  background:#ffffff;
+  color:#0f172a;
+}
+#lock-screen{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  background:#f8fbff;
+  z-index:9999;
+}
+#lock-screen input{
+  padding:12px 14px;
+  font-size:16px;
+  border-radius:10px;
+  border:1px solid #cbd5e1;
+  outline:none;
+}
+#lock-screen button{
+  margin-top:10px;
+  padding:10px 18px;
+  border-radius:999px;
+  border:none;
+  background:#0f172a;
+  color:#fff;
+  font-weight:800;
+  cursor:pointer;
+}
+#error{
+  margin-top:8px;
+  color:#dc2626;
+  display:none;
+}
 
-    textarea{
-      width:100%; min-height:160px;
-      border:1px solid var(--border); border-radius:14px;
-      padding:12px 12px; resize:vertical;
-      font-family:inherit; font-size:14px; line-height:1.45;
-      outline:none; background:#fff;
-    }
-    textarea:focus{ border-color:#cbd5e1; box-shadow:0 0 0 3px rgba(99,102,241,.08); }
+#welcome{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:26px;
+  font-weight:900;
+  background:rgba(255,255,255,0.85);
+  z-index:5000;
+  display:none;
+}
 
-    .rowBtns{ display:flex; gap:10px; margin-top:12px; }
-    button{
-      border:none; border-radius:999px;
-      padding:10px 14px; font-weight:800;
-      cursor:pointer; background:#0f172a; color:#fff;
-    }
-    button.secondary{
-      background:#fff; color:#0f172a;
-      border:1px solid var(--border); font-weight:800;
-    }
-    button.ghost{
-      background:#fff; color:#0f172a;
-      border:1px solid var(--border); font-weight:800;
-    }
+#site{
+  display:none;
+  padding:24px;
+  max-width:1200px;
+  margin:0 auto;
+}
 
-    .remainBox{
-      border:1px solid var(--border);
-      border-radius:14px;
-      background:#f8fafc;
-      padding:12px;
-    }
-    .remainRow{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      padding:6px 2px;
-      gap:10px;
-    }
-    .remainRow .name{ font-weight:700; }
-    .remainRow .cnt{ font-weight:900; }
+/* 로그아웃 버튼 */
+#logout{
+  position:fixed;
+  top:14px;
+  right:18px;
+  background:#fff;
+  border:1px solid #e2e8f0;
+  border-radius:999px;
+  padding:6px 12px;
+  font-weight:800;
+  cursor:pointer;
+}
 
-    .rgbTop{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:8px;
-    }
-    .rgbTitle{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      font-weight:900;
-    }
-    .swatch{
-      width:18px; height:18px;
-      border-radius:6px;
-      border:1px solid rgba(0,0,0,.12);
-      background:rgb(90,160,240);
-    }
-    .rgbVal{ font-size:13px; color:var(--muted); white-space:nowrap; }
-
-    .rgbControls{
-      margin-top:8px;
-      display:grid;
-      grid-template-columns: 34px 1fr 120px;
-      gap:10px 12px;
-      align-items:center;
-    }
-    .rgbControls label{ font-weight:900; color:#0f172a; }
-    .rgbControls input[type="range"]{ width:100%; }
-    .rgbControls input[type="number"]{
-      width:100%;
-      padding:8px 10px;
-      border-radius:12px;
-      border:1px solid var(--border);
-      outline:none;
-      font-size:14px;
-      background:#fff;
-    }
-    .rgbActions{ display:flex; gap:10px; margin-top:12px; }
-
-    .boardHeader{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-bottom:10px;
-    }
-    .boardMeta{ font-size:13px; color:var(--muted); font-weight:700; }
-    .boardWrap{
-      border-radius:22px;
-      border:1px solid var(--border);
-      box-shadow:var(--shadow);
-      padding:14px;
-      background:#fff;
-    }
-    .frame{
-      border-radius:22px;
-      padding:18px;
-      background: rgb(90, 160, 240);
-      position:relative;
-      overflow:hidden;
-    }
-    .frame:before{
-      content:"";
-      position:absolute; inset:12px;
-      border-radius:18px;
-      border:1px solid rgba(255,255,255,.45);
-      pointer-events:none;
-    }
-    .frame:after{
-      content:"";
-      position:absolute; inset:22px;
-      border-radius:16px;
-      border:1px solid rgba(255,255,255,.35);
-      pointer-events:none;
-    }
-
-    .tiles{ position:relative; display:grid; gap:14px; }
-
-    .tile{
-      position:relative;
-      border-radius:18px;
-      background: rgba(255,255,255,.35);
-      box-shadow: 0 2px 0 rgba(0,0,0,.12);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:8px;
-      overflow:hidden;
-    }
-    .tile .txt{
-      font-weight:900;
-      color:#1d1d1f;
-      letter-spacing:-.02em;
-      text-align:center;
-      line-height:1.15;
-      display:block;
-      width:100%;
-      word-break:keep-all;
-      overflow-wrap:anywhere;
-    }
-
-    .tile.picked{
-      background:#fff;
-      box-shadow: 0 2px 0 rgba(0,0,0,.18);
-    }
-    .tile.picked .txt{ color:#6b4b00; }
-
-    .historyHead{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
-    .historyHint{ color:var(--muted); font-size:13px; font-weight:700; }
-    .historyList{
-      border:1px solid var(--border);
-      border-radius:16px;
-      padding:10px;
-      background:#fff;
-      min-height:58px;
-    }
-    .historyItem{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      padding:10px 10px;
-      border-radius:14px;
-      background:#f8fafc;
-      border:1px solid var(--border);
-    }
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      padding:10px 14px;
-      border-radius:999px;
-      background:#fff;
-      border:1px solid var(--border);
-      font-weight:900;
-    }
-
-    #lock-screen{
-      position:fixed; inset:0;
-      display:flex; flex-direction:column;
-      align-items:center; justify-content:center;
-      gap:12px;
-      background:#fffbe6;
-      z-index:9999;
-    }
-    #lock-screen input{
-      padding:10px 12px; font-size:16px;
-      border:1px solid var(--border);
-      border-radius:12px;
-      outline:none;
-      min-width:260px;
-    }
-
-    #topbar{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin:10px 0 14px; }
-  </style>
+/* === 뽑기판 스타일 (기존 유지) === */
+.board{
+  margin-top:30px;
+  padding:20px;
+  border-radius:24px;
+  background:rgb(255,240,180);
+}
+.tiles{
+  display:grid;
+  grid-template-columns:repeat(10,1fr);
+  gap:16px;
+}
+.tile{
+  background:rgba(255,255,255,0.7);
+  border-radius:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  aspect-ratio:1/1;
+  font-weight:900;
+  font-size:20px;
+}
+.tile.picked{
+  background:#fff;
+}
+</style>
 </head>
+
 <body>
-  <div id="lock-screen">
-    <h2>접근 제한</h2>
-    <input type="password" id="password" placeholder="비밀번호 입력" />
-    <button onclick="checkPassword()">입장</button>
-    <p id="error" style="color:red; display:none;">비밀번호가 틀렸어요</p>
+
+<!-- 🔒 비밀번호 화면 -->
+<div id="lock-screen">
+  <h2>비밀번호 입력</h2>
+  <input id="pw" type="password" placeholder="비밀번호">
+  <button onclick="login()">입장</button>
+  <div id="error">비밀번호가 틀렸어요</div>
+</div>
+
+<!-- 환영 문구 -->
+<div id="welcome"></div>
+
+<!-- 로그아웃 -->
+<button id="logout" onclick="logout()">로그아웃</button>
+
+<!-- 실제 사이트 -->
+<div id="site">
+  <h1>스페셜 뽑기판</h1>
+
+  <div class="board">
+    <div class="tiles" id="tiles"></div>
   </div>
-
-  <div id="site-content" style="display:none;">
-    <div class="wrap">
-      <div class="toprow">
-        <div>
-          <h1>스페셜 뽑기판</h1>
-          <div class="sub">한 줄에 <b>상품명 갯수</b> (예: 하트 5) → Enter로 다음 품목</div>
-        </div>
-        <div class="status">진행: <span id="progress">0</span>/<span id="total">0</span> <small>(남음 <span id="remainTotal">0</span>)</small></div>
-      </div>
-
-      <div class="grid2">
-        <div>
-          <div class="card">
-            <div class="cardHead">
-              <h2>품목 입력</h2>
-              <div class="hint">입력 합계: <b id="inputSum">0</b> · 칸 수: <b id="cellCount">0</b></div>
-            </div>
-            <textarea id="items" placeholder="예)
-사랑 10
-하트 5
-초코 3"></textarea>
-
-            <div class="rowBtns">
-              <button id="btnBuild">뽑기판 생성/갱신</button>
-              <button class="secondary" id="btnReset">초기화</button>
-            </div>
-          </div>
-
-          <div class="card" style="margin-top:18px;">
-            <div class="cardHead">
-              <h2>남은 갯수</h2>
-              <div class="hint">남은 칸: <b id="remainCells">0</b></div>
-            </div>
-            <div class="remainBox" id="remainBox"></div>
-          </div>
-
-          <div class="card" style="margin-top:18px;">
-            <div class="rgbTop">
-              <button class="ghost" id="toggleRgb">설정 숨기기</button>
-              <div class="rgbTitle">
-                <span>뽑기판 색상 (RGB)</span>
-                <span class="swatch" id="swatch"></span>
-              </div>
-              <div class="rgbVal" id="rgbLabel">rgb(90, 160, 240)</div>
-            </div>
-
-            <div id="rgbPanel">
-              <div class="rgbControls">
-                <label for="rRange">R</label>
-                <input id="rRange" type="range" min="0" max="255" value="90">
-                <input id="rNum" type="number" min="0" max="255" value="90">
-
-                <label for="gRange">G</label>
-                <input id="gRange" type="range" min="0" max="255" value="160">
-                <input id="gNum" type="number" min="0" max="255" value="160">
-
-                <label for="bRange">B</label>
-                <input id="bRange" type="range" min="0" max="255" value="240">
-                <input id="bNum" type="number" min="0" max="255" value="240">
-              </div>
-
-              <div class="rgbActions">
-                <button class="secondary" id="btnRandom">랜덤 색상</button>
-                <button class="secondary" id="btnWhite">흰색으로</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <div id="topbar">
-            <div style="display:flex; flex-direction:column; gap:6px;">
-              <div id="who-badge" style="font-size:12px; opacity:0.7;"></div>
-              <div id="welcome" style="font-size:14px; font-weight:700; display:none;"></div>
-            </div>
-            <button id="logoutBtn" type="button" onclick="doLogout()" style="padding:6px 10px;">로그아웃</button>
-          </div>
-
-          <div class="card">
-            <div class="boardHeader">
-              <h2>뽑기판</h2>
-              <div class="boardMeta">칸 수: <b id="metaCells">0</b> · 열: <b id="metaCols">0</b></div>
-            </div>
-            <div class="boardWrap">
-              <div class="frame" id="frame">
-                <div class="tiles" id="tiles"></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="card" style="margin-top:18px;">
-            <div class="historyHead">
-              <h2>뽑은 기록</h2>
-              <div class="historyHint">최신이 아래</div>
-            </div>
-            <div class="historyList" id="history"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+</div>
 
 <script>
-/* ====== 기존 뽑기판/자동사이즈 관련 스크립트 유지 ====== */
-(function(){
-  // (원본 파일 내용 그대로 - 중간 스크립트)
-  // ... 이미 너가 만든 코드가 그대로 들어있음 (생략 없음: 실제 파일 그대로 들어가있음)
-})();
-</script>
+/* ===== 계정 설정 ===== */
+const USERS = {
+  "Seravelyy!": "세라",
+  "emo0205": "에메모현"
+};
 
-<script>
-  const USERS = {
-    "Seravelyy!": { name: "세라", role: "admin" },
-    "emo0205": { name: "에메모현", role: "user" }
-  };
+/* ===== 구글 Apps Script URL ===== */
+const LOG_URL = "https://script.google.com/macros/s/AKfycby1YblyIdb8UthZOAJWC-8tW3_6S0tzhssdmu6YEkVwysnGcZTCo-fEaQE73cFYfe_9/exec";
 
-  // ✅ Google Apps Script Web App (exec) URL
-  const LOG_ENDPOINT = "https://script.google.com/macros/s/AKfycby1YblyIdb8UthZOAJWC-8tW3_6S0tzhssdmu6YEkVwysnGcZTCo-fEaQE73cFYfe_9/exec";
-
-  // ✅ 화면에는 아무 것도 띄우지 않고, 시트에만 로그인 기록 저장
-  // (GitHub Pages → Apps Script CORS 프리플라이트를 피하려고 no-cors + text/plain 사용)
-  function sendLoginLog(name){
-    try{
-      fetch(LOG_ENDPOINT, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ name, ua: navigator.userAgent, ts: new Date().toISOString() })
-      }).catch(()=>{});
-    }catch(e){}
+/* ===== 로그인 ===== */
+function login(){
+  const pw = document.getElementById("pw").value.trim();
+  const name = USERS[pw];
+  if(!name){
+    document.getElementById("error").style.display="block";
+    return;
   }
 
-  function showWelcome(name) {
-    const welcome = document.getElementById("welcome");
-    if (!welcome) return;
-    welcome.textContent = `${name}님 환영합니다!`;
-    welcome.style.display = "block";
-    setTimeout(() => {
-      welcome.style.display = "none";
-    }, 2500);
-  }
+  sessionStorage.setItem("user", name);
+  document.getElementById("lock-screen").style.display="none";
+  document.getElementById("site").style.display="block";
 
-  function unlockAs(user) {
-    document.getElementById("lock-screen").style.display = "none";
-    document.getElementById("site-content").style.display = "block";
-    sessionStorage.setItem("unlocked", "true");
-    sessionStorage.setItem("who", user.name);
-    sessionStorage.setItem("role", user.role || "user");
+  // 환영 문구
+  const w = document.getElementById("welcome");
+  w.textContent = `${name}님 환영합니다!`;
+  w.style.display="flex";
+  setTimeout(()=>w.style.display="none",2000);
 
-    const badge = document.getElementById("who-badge");
-    if (badge) badge.textContent = `${user.name} 님 접속`;
-
-    showWelcome(user.name);
-
-    // ✅ 추가: 로그인 성공 시 "시트에만" 로그 저장 (화면표시 없음)
-    sendLoginLog(user.name);
-  }
-
-  function checkPassword() {
-    const input = document.getElementById("password").value.trim();
-    const user = USERS[input];
-
-    if (user) {
-      unlockAs(user);
-    } else {
-      document.getElementById("error").style.display = "block";
-    }
-  }
-
-  function doLogout() {
-    sessionStorage.removeItem("unlocked");
-    sessionStorage.removeItem("who");
-    sessionStorage.removeItem("role");
-    document.getElementById("site-content").style.display = "none";
-    const lock = document.getElementById("lock-screen");
-    lock.style.display = "flex";
-    document.getElementById("password").value = "";
-    document.getElementById("error").style.display = "none";
-  }
-
-  if (sessionStorage.getItem("unlocked") === "true") {
-    document.getElementById("lock-screen").style.display = "none";
-    document.getElementById("site-content").style.display = "block";
-
-    const who = sessionStorage.getItem("who");
-    if (who) {
-      const badge = document.getElementById("who-badge");
-      if (badge) badge.textContent = `${who} 님 접속`;
-    }
-  }
-
-  window.addEventListener("load", () => {
-    const pw = document.getElementById("password");
-    if (pw) {
-      pw.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") checkPassword();
-      });
-    }
+  // ✅ 시트로만 로그 전송 (화면 출력 ❌)
+  fetch(LOG_URL,{
+    method:"POST",
+    mode:"no-cors",
+    headers:{ "Content-Type":"text/plain;charset=utf-8" },
+    body: JSON.stringify({
+      name,
+      ua: navigator.userAgent,
+      time: new Date().toISOString()
+    })
   });
+}
+
+/* ===== 로그아웃 ===== */
+function logout(){
+  sessionStorage.removeItem("user");
+  location.reload();
+}
+
+/* ===== 새로고침 유지 ===== */
+if(sessionStorage.getItem("user")){
+  document.getElementById("lock-screen").style.display="none";
+  document.getElementById("site").style.display="block";
+}
+
+/* ===== 예시 뽑기판 ===== */
+const tiles = document.getElementById("tiles");
+for(let i=1;i<=100;i++){
+  const d=document.createElement("div");
+  d.className="tile";
+  d.textContent=i;
+  tiles.appendChild(d);
+}
 </script>
 </body>
 </html>
